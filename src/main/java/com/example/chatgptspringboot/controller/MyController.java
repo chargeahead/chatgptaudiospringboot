@@ -1,25 +1,28 @@
 package com.example.chatgptspringboot.controller;
 
-import com.theokanning.openai.image.CreateImageRequest;
-import com.theokanning.openai.image.Image;
+import com.theokanning.openai.audio.CreateTranscriptionRequest;
 import com.theokanning.openai.service.OpenAiService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+
 @RestController
 public class MyController {
+
     @Value("${openai.api.key}")
     private String apiKey;
 
-    @GetMapping("/image")
-    public String image(@RequestParam String prompt){
+    @GetMapping("/audio")
+    public String audio(@RequestParam String filePath){
         OpenAiService service = new OpenAiService(apiKey);
-        CreateImageRequest req = new CreateImageRequest();
-        req.setPrompt(prompt);
-        req.setSize("1024x1024");
-        Image image = service.createImage(req).getData().get(0);
-        return image.getUrl();
+
+        CreateTranscriptionRequest request = new CreateTranscriptionRequest();
+        request.setModel("whisper-1");
+        File file = new File(filePath);
+        String transcription = service.createTranscription(request,filePath).getText();
+        return transcription;
     }
 }
